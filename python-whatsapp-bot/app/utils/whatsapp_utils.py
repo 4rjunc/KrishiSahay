@@ -8,8 +8,10 @@ import re
 
 from dotenv import load_dotenv
 import os
+
 load_dotenv()
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+
 
 def log_http_response(response):
     logging.info(f"Status: {response.status_code}")
@@ -23,8 +25,14 @@ def get_text_message_input(recipient, text):
             "messaging_product": "whatsapp",
             "recipient_type": "individual",
             "to": recipient,
-            "type": "text",
-            "text": {"preview_url": False, "body": text},
+            # "type": "text",
+            "type": "template",
+            # "text": {"preview_url": False, "body": text},
+            "template": {
+                "namespace": "f701d0b1_eed6_466e_bedb_128a0e30871b",
+                "name": "features",
+                "language": {"code": "ml", "policy": "deterministic"},
+            },
         }
     )
 
@@ -42,6 +50,7 @@ def send_message(data):
 
     url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{current_app.config['PHONE_NUMBER_ID']}/messages"
 
+    print(f"Data Sending {data}")
     try:
         response = requests.post(
             url, data=data, headers=headers, timeout=10
@@ -78,40 +87,46 @@ def process_text_for_whatsapp(text):
 
     return whatsapp_style_text
 
-#Function has some errors : To download files
-def save_img(media_id):
-    url = f'https://graph.facebook.com/v18.0/{media_id}/'
 
-    headers = {
-        'Authorization': f'Bearer {ACCESS_TOKEN}'
-    }
+# Function has some errors : To download files
+def save_img(media_id):
+    url = f"https://graph.facebook.com/v18.0/{media_id}/"
+
+    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
 
     response = requests.get(url, headers=headers, stream=True)
 
     # Check if the request was successful (status code 200)
     if response.status_code == 200:
         # Specify the local path where you want to save the image
-        local_path = 'image.jpeg'  # Replace with the desired local path and filename
-        
+        local_path = "image.jpeg"  # Replace with the desired local path and filename
+
         # Saving the image to the local path
-        with open(local_path, 'wb') as file:
+        with open(local_path, "wb") as file:
             for chunk in response.iter_content(chunk_size=128):
                 file.write(chunk)
-        
+
         print(f"Image saved successfully at {local_path}")
     else:
         print(f"Failed to fetch data. Status code: {response.status_code}")
         print(response.text)
 
 
-
 def process_whatsapp_message(body):
     wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
     print("BODY:", body)
-    message = body["entry"][0]["changes"][0]["value"]["messages"][0]
+
+    # Check in coming data if its a button or image. If button give corresponding text message for image run the model and give the results 
+    # message = dict()
+    # if "message" in body["entry"][0]["changes"][0]["value"]:
+    #     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
+    # elif "button" in body["entry"][0]["changes"][0]["value"]["messages"][0]:
+    #     print("Buttton")
     # print(message["image"]["id"])
     # save_img(message["image"]["id"])
+    message = body["entry"][0]["changes"][0]["value"]["messages"][0]
+    print(f"{message=}")
     message_body = message["text"]["body"]
 
     # TODO: implement custom function here
