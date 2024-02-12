@@ -3,6 +3,9 @@ from flask import current_app, jsonify
 import json
 import requests
 
+# Third party whatsapp module
+from heyoo import WhatsApp
+
 # from app.services.openai_service import generate_response
 import re
 
@@ -11,6 +14,7 @@ import os
 
 load_dotenv()
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+messenger = WhatsApp(ACCESS_TOKEN)
 
 
 def log_http_response(response):
@@ -19,22 +23,36 @@ def log_http_response(response):
     logging.info(f"Body: {response.text}")
 
 
-def get_text_message_input(recipient, text):
-    return json.dumps(
-        {
-            "messaging_product": "whatsapp",
-            "recipient_type": "individual",
-            "to": recipient,
-            # "type": "text",
-            "type": "template",
-            # "text": {"preview_url": False, "body": text},
-            "template": {
-                "namespace": "f701d0b1_eed6_466e_bedb_128a0e30871b",
-                "name": "features",
-                "language": {"code": "ml", "policy": "deterministic"},
-            },
-        }
-    )
+def get_text_message_input(recipient, text, type):
+
+    # Normal text for image inputs
+    # TODO Analyise the image and genrated the diesease output
+    if type == "image":
+        return json.dumps(
+            {
+                "messaging_product": "whatsapp",
+                "recipient_type": "individual",
+                "to": recipient,
+                "type": "text",
+                "text": {"preview_url": False, "body": text},
+            }
+        )
+    
+    # Sents Template with buttons 
+    else:
+        return json.dumps(
+            {
+                "messaging_product": "whatsapp",
+                "recipient_type": "individual",
+                "to": recipient,
+                "type": "template",
+                "template": {
+                    "namespace": "f701d0b1_eed6_466e_bedb_128a0e30871b",
+                    "name": "features",
+                    "language": {"code": "ml", "policy": "deterministic"},
+                },
+            }
+        )
 
 
 def generate_response(response):
@@ -117,30 +135,35 @@ def process_whatsapp_message(body):
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
     print("BODY:", body)
 
-    # Check in coming data if its a button or image. If button give corresponding text message for image run the model and give the results 
-    # message = dict()
-    # if "message" in body["entry"][0]["changes"][0]["value"]:
-    #     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
-    # elif "button" in body["entry"][0]["changes"][0]["value"]["messages"][0]:
-    #     print("Buttton")
-    # print(message["image"]["id"])
-    # save_img(message["image"]["id"])
+    # Check in coming data if its a button or image. If button give corresponding text message for image run the model and give the results
+    message_type = messenger.get_message_type(body)
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
     print(f"{message=}")
-    if message["type"] == "button" :
+
+    if message_type == "button":
         print("Its a button")
-        
-    message_body = message["text"]["body"]
 
-    # TODO: implement custom function here
-    print(f"{message_body}")
-    response = generate_response(message_body)
+    elif message_type == "text":
+        print("Its a text message")
+        message_body = message["text"]["body"]
 
+        # TODO: implement custom function here
+        print(f"{message_body}")
+        response = generate_response(message_body)
+
+    elif message_type == "image":
+        image = messenger.get_image(body)
+        image_id, mime_type = image["id"], image["mime_type"]
+        image_url = messenger.query_media_url(image_id)
+        image_filename = messenger.download_media(image_url, mime_type)
+        print(f"sent image {image_filename}")
+        logging.info(f"sent image {image_filename}")
+        response = "Analysing The Image ☘️ "
     # OpenAI Integration
     # response = generate_response(message_body, wa_id, name)
     # response = process_text_for_whatsapp(response)
 
-    data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
+    data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response, message_type)
     send_message(data)
 
 
