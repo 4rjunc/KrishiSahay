@@ -37,8 +37,8 @@ def get_text_message_input(recipient, text, type):
                 "text": {"preview_url": False, "body": text},
             }
         )
-    
-    # Sents Template with buttons 
+
+    # Sents Template with buttons
     else:
         return json.dumps(
             {
@@ -131,14 +131,19 @@ def save_img(media_id):
 
 
 def process_whatsapp_message(body):
-    wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
-    name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
-    print("BODY:", body)
+    #wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
+    #name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
 
-    # Check in coming data if its a button or image. If button give corresponding text message for image run the model and give the results
+    wa_no = messenger.get_mobile(body)
+    wa_name = messenger.get_name(body)
+    print(f"{wa_no=}, {wa_name=}")
+
+    logging.info("BODY:", body)
+
+    # TODO: Check the type of message
     message_type = messenger.get_message_type(body)
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
-    print(f"{message=}")
+    logging.info(f"{message=}")
 
     if message_type == "button":
         print("Its a button")
@@ -163,7 +168,9 @@ def process_whatsapp_message(body):
     # response = generate_response(message_body, wa_id, name)
     # response = process_text_for_whatsapp(response)
 
-    data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response, message_type)
+    data = get_text_message_input(
+        current_app.config["RECIPIENT_WAID"], response, message_type
+    )
     send_message(data)
 
 
