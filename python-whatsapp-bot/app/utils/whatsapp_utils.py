@@ -127,6 +127,9 @@ def process_whatsapp_message(body):
     # save_img(message["image"]["id"])
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
     print(f"{message=}")
+    if message["type"] == "button" :
+        print("Its a button")
+        
     message_body = message["text"]["body"]
 
     # TODO: implement custom function here
