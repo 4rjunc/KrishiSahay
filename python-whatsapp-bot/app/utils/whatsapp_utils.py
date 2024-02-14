@@ -39,7 +39,7 @@ def get_text_message_input(recipient, text, type):
         )
 
     # Sents Template with buttons
-    else:
+    elif type=="text":
         return json.dumps(
             {
                 "messaging_product": "whatsapp",
@@ -68,7 +68,7 @@ def send_message(data):
 
     url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{current_app.config['PHONE_NUMBER_ID']}/messages"
 
-    print(f"Data Sending {data}")
+    logging.info(f"Data Sending {data}")
     try:
         response = requests.post(
             url, data=data, headers=headers, timeout=10
@@ -138,21 +138,22 @@ def process_whatsapp_message(body):
     wa_name = messenger.get_name(body)
     print(f"{wa_no=}, {wa_name=}")
 
-    logging.info("BODY:", body)
+    logging.debug("BODY:", body)
 
     # TODO: Check the type of message
     message_type = messenger.get_message_type(body)
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
-    logging.info(f"{message=}")
+    logging.debug(f"{message=}")
 
     if message_type == "button":
-        print("Its a button")
+        logging.info("Its a button")
 
     elif message_type == "text":
-        print("Its a text message")
+        logging.info("Its a text message")
         message_body = message["text"]["body"]
 
-        # TODO: implement custom function here
+        # TODO: implement custom function here 
+        # 1 : 
         print(f"{message_body}")
         response = generate_response(message_body)
 
@@ -164,6 +165,7 @@ def process_whatsapp_message(body):
         print(f"sent image {image_filename}")
         logging.info(f"sent image {image_filename}")
         response = "Analysing The Image ☘️ "
+
     # OpenAI Integration
     # response = generate_response(message_body, wa_id, name)
     # response = process_text_for_whatsapp(response)
