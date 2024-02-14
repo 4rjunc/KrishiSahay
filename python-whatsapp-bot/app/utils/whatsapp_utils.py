@@ -2,6 +2,7 @@ import logging
 from flask import current_app, jsonify
 import json
 import requests
+import asyncio
 
 # Third party whatsapp module
 from heyoo import WhatsApp
@@ -15,6 +16,15 @@ import os
 load_dotenv()
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 messenger = WhatsApp(ACCESS_TOKEN)
+
+async def prediction():
+    response = "THIS IS A DISEASE DETECTION MODEL"
+    message_type = "image"
+    data = get_text_message_input(
+        current_app.config["RECIPIENT_WAID"], response, message_type
+    )
+    await asyncio.sleep(10)
+    send_message(data)
 
 
 def log_http_response(response):
@@ -165,7 +175,7 @@ def process_whatsapp_message(body):
         print(f"sent image {image_filename}")
         logging.info(f"sent image {image_filename}")
         response = "Analysing The Image ☘️ "
-
+        asyncio.run(prediction())
     # OpenAI Integration
     # response = generate_response(message_body, wa_id, name)
     # response = process_text_for_whatsapp(response)
