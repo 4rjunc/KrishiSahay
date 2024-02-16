@@ -35,7 +35,7 @@ def log_http_response(response):
     logging.info(f"Body: {response.text}")
 
 
-def get_text_message_input(recipient, type,text="none"):
+def get_text_message_input(recipient, type,text):
 
     # Normal text for image inputs
     # TODO Analyise the image and genrated the diesease output
@@ -82,6 +82,16 @@ def get_text_message_input(recipient, type,text="none"):
             }
         )
 
+    elif type == "button":
+        return json.dumps(
+            {
+                "messaging_product": "whatsapp",
+                "recipient_type": "individual",
+                "to": recipient,
+                "type": "text",
+                "text": {"preview_url": False, "body": text},
+            }
+        )
 
 def generate_response(response):
     # Return text in uppercase
@@ -170,6 +180,11 @@ def process_whatsapp_message(body):
             update_preferences(wa_no=wa_no, preferences="eng")
         elif message_body == "മലയാളം":
             update_preferences(wa_no=wa_no, preferences="mal")
+        elif message_body == "രോഗം കണ്ടെത്തൽ":
+            response="രോഗം ബാധിച്ച ഇലയുടെ ചിത്രം അയയ്ക്കുക"
+            data = get_text_message_input(current_app.config["RECIPIENT_WAID"], message_type, response)
+            send_message(data)
+
     elif message_type == "text":
         logging.info("Its a text message")
         message_body = message["text"]["body"]
