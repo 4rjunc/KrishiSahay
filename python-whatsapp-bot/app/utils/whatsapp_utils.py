@@ -4,6 +4,8 @@ import json
 import requests
 import asyncio
 
+#database
+from .database import add_user, get_user, update_preferences
 # Third party whatsapp module
 from heyoo import WhatsApp
 
@@ -33,7 +35,7 @@ def log_http_response(response):
     logging.info(f"Body: {response.text}")
 
 
-def get_text_message_input(recipient, text, type):
+def get_text_message_input(recipient, type,text="none"):
 
     # Normal text for image inputs
     # TODO Analyise the image and genrated the diesease output
@@ -60,6 +62,22 @@ def get_text_message_input(recipient, text, type):
                     "namespace": "f701d0b1_eed6_466e_bedb_128a0e30871b",
                     "name": "features",
                     "language": {"code": "ml", "policy": "deterministic"},
+                },
+            }
+        )
+    
+    elif type=="first":
+        logging.info("First Message")
+        return json.dumps(
+            {
+                "messaging_product": "whatsapp",
+                "recipient_type": "individual",
+                "to": recipient,
+                "type": "template",
+                "template": {
+                    "namespace": "f701d0b1_eed6_466e_bedb_128a0e30871b",
+                    "name": "lang",
+                    "language": {"code": "en", "policy": "deterministic"},
                 },
             }
         )
@@ -116,37 +134,26 @@ def process_text_for_whatsapp(text):
     return whatsapp_style_text
 
 
-# Function has some errors : To download files
-def save_img(media_id):
-    url = f"https://graph.facebook.com/v18.0/{media_id}/"
-
-    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-
-    response = requests.get(url, headers=headers, stream=True)
-
-    # Check if the request was successful (status code 200)
-    if response.status_code == 200:
-        # Specify the local path where you want to save the image
-        local_path = "image.jpeg"  # Replace with the desired local path and filename
-
-        # Saving the image to the local path
-        with open(local_path, "wb") as file:
-            for chunk in response.iter_content(chunk_size=128):
-                file.write(chunk)
-
-        print(f"Image saved successfully at {local_path}")
-    else:
-        print(f"Failed to fetch data. Status code: {response.status_code}")
-        print(response.text)
-
 
 def process_whatsapp_message(body):
-    #wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
-    #name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
 
     wa_no = messenger.get_mobile(body)
     wa_name = messenger.get_name(body)
     print(f"{wa_no=}, {wa_name=}")
+    
+    #Added user to DB
+    is_new = add_user(wa_no=wa_no, wa_name=wa_name)
+    logging.info(f"{is_new=}")
+    if is_new:
+        message_type="first"
+        response="none"
+        data = get_text_message_input(
+            current_app.config["RECIPIENT_WAID"], message_type, response
+        )
+
+        send_message(data)
+        return
+
 
     logging.debug("BODY:", body)
 
@@ -166,6 +173,11 @@ def process_whatsapp_message(body):
         # 1 : 
         print(f"{message_body}")
         response = generate_response(message_body)
+        data = get_text_message_input(
+            current_app.config["RECIPIENT_WAID"], message_type, response
+        )
+        send_message(data)
+
 
     elif message_type == "image":
         image = messenger.get_image(body)
@@ -180,10 +192,10 @@ def process_whatsapp_message(body):
     # response = generate_response(message_body, wa_id, name)
     # response = process_text_for_whatsapp(response)
 
-    data = get_text_message_input(
-        current_app.config["RECIPIENT_WAID"], response, message_type
-    )
-    send_message(data)
+        data = get_text_message_input(
+            current_app.config["RECIPIENT_WAID"], message_type, response
+        )
+        send_message(data)
 
 
 def is_valid_whatsapp_message(body):
