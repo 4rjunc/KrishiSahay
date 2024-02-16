@@ -155,7 +155,7 @@ def process_whatsapp_message(body):
         return
 
 
-    logging.debug("BODY:", body)
+    print("BODY:", body)
 
     # TODO: Check the type of message
     message_type = messenger.get_message_type(body)
@@ -164,7 +164,12 @@ def process_whatsapp_message(body):
 
     if message_type == "button":
         logging.info("Its a button")
-
+        message_body = message["button"]["text"]
+        logging.info(f"{message_body=}")
+        if message_body == "English":
+            update_preferences(wa_no=wa_no, preferences="eng")
+        elif message_body == "മലയാളം":
+            update_preferences(wa_no=wa_no, preferences="mal")
     elif message_type == "text":
         logging.info("Its a text message")
         message_body = message["text"]["body"]
