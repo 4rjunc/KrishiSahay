@@ -24,8 +24,8 @@ def predict_image_class(image_path):
 
     class_idx = np.argmax(predictions[0])
     # Modify this logic based on how your classes are determined
-    class_label = {0: 'Tomato_healthy', 1: 'Pepper__bell___healthy', 2: 'Healthy_cucumberleaf'}
-    disease_type = class_label.get(class_idx, 'Unknown')
+    class_label = {'Downey Mildew': 0, 'Healthy cucumberleaf': 1, 'Pepper__bell___Bacterial_spot': 2, 'Pepper__bell___healthy': 3, 'Tomato__Tomato_YellowLeaf__Curl_Virus': 4, 'Tomato__Tomato_mosaic_virus': 5, 'Tomato_healthy': 6}
+    disease_type = list(class_label.keys())[list(class_label.values()).index(class_idx)]
 
     return disease_type
 
