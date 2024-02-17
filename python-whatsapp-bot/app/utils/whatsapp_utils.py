@@ -2,7 +2,7 @@ import logging
 from flask import current_app, jsonify
 import json
 import requests
-import asyncio
+from googletrans import Translator
 
 # database
 from .database import add_user, get_user, update_preferences
@@ -23,15 +23,17 @@ load_dotenv()
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 messenger = WhatsApp(ACCESS_TOKEN)
 
-
-async def prediction():
-    response = "THIS IS A DISEASE DETECTION MODEL"
-    message_type = "image"
-    data = get_text_message_input(
-        current_app.config["RECIPIENT_WAID"], response, message_type
-    )
-    await asyncio.sleep(10)
-    send_message(data)
+#Translate the data
+def translate_dict(data, lang="ml"):
+    translator = Translator()
+    if isinstance(data, str):
+        return translator.translate(data, dest=lang).text
+    elif isinstance(data, list):
+        return [translate_dict(item, lang) for item in data]
+    elif isinstance(data, dict):
+        return {key: translate_dict(value, lang) for key, value in data.items()}
+    else:
+        return data
 
 
 def log_http_response(response):
@@ -110,7 +112,7 @@ def get_text_message_input(recipient, type, text, lang="en"):
                 "template": {
                     "namespace": "f701d0b1_eed6_466e_bedb_128a0e30871b",
                     "name": "result",
-                    "language": {"code": "en", "policy": "deterministic"},
+                    "language": {"code": lang, "policy": "deterministic"},
                 
                 "components": [
                     {
@@ -282,12 +284,13 @@ def process_whatsapp_message(body):
         image_filename = messenger.download_media(image_url, mime_type)
         print(f"sent image {image_filename}")
         logging.info(f"sent image {image_filename}")
-        # asyncio.run(prediction())
         response = predict_image_class(
             "/Users/arjun/Documents/KrishiSahay/python-whatsapp-bot/temp.jpeg"
         )
         message_type = "prediction"
-
+        if user_lang == "ml":
+            response = translate_dict(response)
+            print(f"Translated to mal : {response=}")
         # OpenAI Integration
         # response = generate_response(message_body, wa_id, name)
         # response = process_text_for_whatsapp(response)
@@ -296,6 +299,7 @@ def process_whatsapp_message(body):
             current_app.config["RECIPIENT_WAID"],
             message_type,
             response,
+            lang=user_lang
         )
         send_message(data)
 
