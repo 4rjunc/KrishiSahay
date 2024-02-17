@@ -84,7 +84,7 @@ def update_image(wa_no, image):
     conn = sqlite3.connect("whatsapp_users.db")
     cursor = conn.cursor()
 
-    with open('image.jpg', 'rb') as file:
+    with open("image.jpg", "rb") as file:
         image_data = file.read()
 
     cursor.execute(
@@ -92,7 +92,6 @@ def update_image(wa_no, image):
         (image_data, wa_no),
     )
 
-        # Commit changes and close the connection
+    # Commit changes and close the connection
     conn.commit()
     conn.close()
-

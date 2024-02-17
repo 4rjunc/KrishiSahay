@@ -9,6 +9,7 @@ from .database import add_user, get_user, update_preferences
 
 # model
 from .model.model import predict_image_class
+
 # Third party whatsapp module
 from heyoo import WhatsApp
 
@@ -69,6 +70,7 @@ def get_text_message_input(recipient, type, text, lang="en"):
             }
         )
 
+
     elif type == "first":
         logging.info("First Message")
         return json.dumps(
@@ -97,15 +99,36 @@ def get_text_message_input(recipient, type, text, lang="en"):
         )
 
     elif type == "prediction":
+        logging.info("Prediction")
+        logging.info(f"{text=}")
         return json.dumps(
             {
                 "messaging_product": "whatsapp",
                 "recipient_type": "individual",
                 "to": recipient,
-                "type": "text",
-                "text": {"preview_url": False, "body": text},
+                "type": "template",
+                "template": {
+                    "namespace": "f701d0b1_eed6_466e_bedb_128a0e30871b",
+                    "name": "result",
+                    "language": {"code": "en", "policy": "deterministic"},
+                
+                "components": [
+                    {
+                        "type": "body",
+                        "parameters": [
+                            {"type": "text", "text": text["Name"]},
+                            {"type": "text", "text": text["Description"]},
+                            {"type": "text", "text": text["Symptoms"]},
+                            {"type": "text", "text": text["Solutions"]["Chemical"][0]},
+                            {"type": "text", "text": text["Solutions"]["Organic"][0]},
+                        ],
+                    }
+                ],
+                },
             }
         )
+
+
 def generate_response(response):
     # Return text in uppercase
     return response.upper()
@@ -119,7 +142,7 @@ def send_message(data):
 
     url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{current_app.config['PHONE_NUMBER_ID']}/messages"
 
-    logging.info(f"Data Sending {data}")
+    logging.info(f"Data Sending {data=}")
     try:
         response = requests.post(
             url, data=data, headers=headers, timeout=10
@@ -169,7 +192,7 @@ def process_whatsapp_message(body):
         message_type = "first"
         response = "none"
         data = get_text_message_input(
-            current_app.config["RECIPIENT_WAID"], message_type,response
+            current_app.config["RECIPIENT_WAID"], message_type, response
         )
 
         send_message(data)
@@ -195,10 +218,10 @@ def process_whatsapp_message(body):
             )
             send_message(data)
 
-            message_type="text"
+            message_type = "text"
             data = get_text_message_input(
-            current_app.config["RECIPIENT_WAID"], message_type, response
-             )
+                current_app.config["RECIPIENT_WAID"], message_type, response
+            )
             send_message(data)
 
         elif message_body == "മലയാളം":
@@ -209,10 +232,10 @@ def process_whatsapp_message(body):
             )
             send_message(data)
 
-            message_type="text"
+            message_type = "text"
             data = get_text_message_input(
-            current_app.config["RECIPIENT_WAID"], message_type, response, lang="ml"
-             )
+                current_app.config["RECIPIENT_WAID"], message_type, response, lang="ml"
+            )
             send_message(data)
 
         elif message_body == "രോഗം കണ്ടെത്തൽ":
@@ -221,7 +244,7 @@ def process_whatsapp_message(body):
                 current_app.config["RECIPIENT_WAID"], message_type, response
             )
             send_message(data)
-        
+
         elif message_body == "Disease detection":
             response = "Send the picture of infected leaf ☘️"
             data = get_text_message_input(
@@ -259,15 +282,20 @@ def process_whatsapp_message(body):
         image_filename = messenger.download_media(image_url, mime_type)
         print(f"sent image {image_filename}")
         logging.info(f"sent image {image_filename}")
-        #asyncio.run(prediction())
-        response = predict_image_class("/Users/arjun/Documents/KrishiSahay/python-whatsapp-bot/temp.jpeg")
+        # asyncio.run(prediction())
+        response = predict_image_class(
+            "/Users/arjun/Documents/KrishiSahay/python-whatsapp-bot/temp.jpeg"
+        )
         message_type = "prediction"
+
         # OpenAI Integration
         # response = generate_response(message_body, wa_id, name)
         # response = process_text_for_whatsapp(response)
 
         data = get_text_message_input(
-            current_app.config["RECIPIENT_WAID"], message_type, response, 
+            current_app.config["RECIPIENT_WAID"],
+            message_type,
+            response,
         )
         send_message(data)
 

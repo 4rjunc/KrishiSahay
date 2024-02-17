@@ -19,7 +19,9 @@ json_file.close()
 model = model_from_json(loaded_model_json)
 
 # Load the trained weights
-model.load_weights("/Users/arjun/Documents/KrishiSahay/python-whatsapp-bot/app/utils/model/model_weights.h5")
+model.load_weights(
+    "/Users/arjun/Documents/KrishiSahay/python-whatsapp-bot/app/utils/model/model_weights.h5"
+)
 
 
 # Function to predict the class of an image
