@@ -7,6 +7,8 @@ import asyncio
 # database
 from .database import add_user, get_user, update_preferences
 
+# model
+from .model.model import predict_image_class
 # Third party whatsapp module
 from heyoo import WhatsApp
 
@@ -94,7 +96,16 @@ def get_text_message_input(recipient, type, text, lang="en"):
             }
         )
 
-
+    elif type == "prediction":
+        return json.dumps(
+            {
+                "messaging_product": "whatsapp",
+                "recipient_type": "individual",
+                "to": recipient,
+                "type": "text",
+                "text": {"preview_url": False, "body": text},
+            }
+        )
 def generate_response(response):
     # Return text in uppercase
     return response.upper()
@@ -248,8 +259,9 @@ def process_whatsapp_message(body):
         image_filename = messenger.download_media(image_url, mime_type)
         print(f"sent image {image_filename}")
         logging.info(f"sent image {image_filename}")
-        asyncio.run(prediction())
-        response = "This is the disease of this plant"
+        #asyncio.run(prediction())
+        response = predict_image_class("/Users/arjun/Documents/KrishiSahay/python-whatsapp-bot/temp.jpeg")
+        message_type = "prediction"
         # OpenAI Integration
         # response = generate_response(message_body, wa_id, name)
         # response = process_text_for_whatsapp(response)
