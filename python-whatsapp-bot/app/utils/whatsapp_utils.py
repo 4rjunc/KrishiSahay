@@ -4,8 +4,9 @@ import json
 import requests
 import asyncio
 
-#database
+# database
 from .database import add_user, get_user, update_preferences
+
 # Third party whatsapp module
 from heyoo import WhatsApp
 
@@ -18,6 +19,7 @@ import os
 load_dotenv()
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 messenger = WhatsApp(ACCESS_TOKEN)
+
 
 async def prediction():
     response = "THIS IS A DISEASE DETECTION MODEL"
@@ -35,8 +37,7 @@ def log_http_response(response):
     logging.info(f"Body: {response.text}")
 
 
-def get_text_message_input(recipient, type,text):
-
+def get_text_message_input(recipient, type, text, lang="en"):
     # Normal text for image inputs
     # TODO Analyise the image and genrated the diesease output
     if type == "image":
@@ -51,7 +52,7 @@ def get_text_message_input(recipient, type,text):
         )
 
     # Sents Template with buttons
-    elif type=="text":
+    elif type == "text":
         return json.dumps(
             {
                 "messaging_product": "whatsapp",
@@ -61,12 +62,12 @@ def get_text_message_input(recipient, type,text):
                 "template": {
                     "namespace": "f701d0b1_eed6_466e_bedb_128a0e30871b",
                     "name": "features",
-                    "language": {"code": "ml", "policy": "deterministic"},
+                    "language": {"code": lang, "policy": "deterministic"},
                 },
             }
         )
-    
-    elif type=="first":
+
+    elif type == "first":
         logging.info("First Message")
         return json.dumps(
             {
@@ -92,6 +93,7 @@ def get_text_message_input(recipient, type,text):
                 "text": {"preview_url": False, "body": text},
             }
         )
+
 
 def generate_response(response):
     # Return text in uppercase
@@ -144,26 +146,23 @@ def process_text_for_whatsapp(text):
     return whatsapp_style_text
 
 
-
 def process_whatsapp_message(body):
-
     wa_no = messenger.get_mobile(body)
     wa_name = messenger.get_name(body)
     print(f"{wa_no=}, {wa_name=}")
-    
-    #Added user to DB
+
+    # Added user to DB
     is_new = add_user(wa_no=wa_no, wa_name=wa_name)
     logging.info(f"{is_new=}")
     if is_new:
-        message_type="first"
-        response="none"
+        message_type = "first"
+        response = "none"
         data = get_text_message_input(
-            current_app.config["RECIPIENT_WAID"], message_type, response
+            current_app.config["RECIPIENT_WAID"], message_type,response
         )
 
         send_message(data)
         return
-
 
     print("BODY:", body)
 
@@ -176,28 +175,54 @@ def process_whatsapp_message(body):
         logging.info("Its a button")
         message_body = message["button"]["text"]
         logging.info(f"{message_body=}")
+
         if message_body == "English":
-            update_preferences(wa_no=wa_no, preferences="eng")
+            update_preferences(wa_no=wa_no, preferences="en")
+            response = "Language Upated"
+            data = get_text_message_input(
+                current_app.config["RECIPIENT_WAID"], message_type, response
+            )
+            send_message(data)
+
+            message_type="text"
+            data = get_text_message_input(
+            current_app.config["RECIPIENT_WAID"], message_type, response
+             )
+            send_message(data)
+
         elif message_body == "മലയാളം":
-            update_preferences(wa_no=wa_no, preferences="mal")
+            update_preferences(wa_no=wa_no, preferences="ml")
+            response = "ഭാഷ അപ്ഡേറ്റ് ചെയ്തു"
+            data = get_text_message_input(
+                current_app.config["RECIPIENT_WAID"], message_type, response
+            )
+            send_message(data)
+
+            message_type="text"
+            data = get_text_message_input(
+            current_app.config["RECIPIENT_WAID"], message_type, response, lang="ml"
+             )
+            send_message(data)
+
         elif message_body == "രോഗം കണ്ടെത്തൽ":
-            response="രോഗം ബാധിച്ച ഇലയുടെ ചിത്രം അയയ്ക്കുക"
-            data = get_text_message_input(current_app.config["RECIPIENT_WAID"], message_type, response)
+            response = "രോഗം ബാധിച്ച ഇലയുടെ ചിത്രം അയയ്ക്കുക"
+            data = get_text_message_input(
+                current_app.config["RECIPIENT_WAID"], message_type, response
+            )
             send_message(data)
 
     elif message_type == "text":
         logging.info("Its a text message")
         message_body = message["text"]["body"]
 
-        # TODO: implement custom function here 
-        # 1 : 
+        # TODO: implement custom function here
+        # 1 :
         print(f"{message_body}")
         response = generate_response(message_body)
         data = get_text_message_input(
             current_app.config["RECIPIENT_WAID"], message_type, response
         )
         send_message(data)
-
 
     elif message_type == "image":
         image = messenger.get_image(body)
@@ -208,9 +233,9 @@ def process_whatsapp_message(body):
         logging.info(f"sent image {image_filename}")
         response = "Analysing The Image ☘️ "
         asyncio.run(prediction())
-    # OpenAI Integration
-    # response = generate_response(message_body, wa_id, name)
-    # response = process_text_for_whatsapp(response)
+        # OpenAI Integration
+        # response = generate_response(message_body, wa_id, name)
+        # response = process_text_for_whatsapp(response)
 
         data = get_text_message_input(
             current_app.config["RECIPIENT_WAID"], message_type, response

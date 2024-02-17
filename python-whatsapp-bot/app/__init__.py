@@ -4,6 +4,7 @@ from .views import webhook_blueprint
 
 from .utils.database import initialize_database
 
+
 def create_app():
     app = Flask(__name__)
 
@@ -14,6 +15,5 @@ def create_app():
 
     # Import and register blueprints, if any
     app.register_blueprint(webhook_blueprint)
-
 
     return app

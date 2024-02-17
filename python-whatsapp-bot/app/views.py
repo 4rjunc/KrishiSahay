@@ -1,7 +1,7 @@
 import logging
 import json
 
-from flask import Blueprint, request, jsonify, current_app,session
+from flask import Blueprint, request, jsonify, current_app, session
 
 from .decorators.security import signature_required
 from .utils.whatsapp_utils import (
