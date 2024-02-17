@@ -205,7 +205,14 @@ def process_whatsapp_message(body):
             send_message(data)
 
         elif message_body == "രോഗം കണ്ടെത്തൽ":
-            response = "രോഗം ബാധിച്ച ഇലയുടെ ചിത്രം അയയ്ക്കുക"
+            response = "രോഗം ബാധിച്ച ഇലയുടെ ചിത്രം അയയ്ക്കുക ☘️"
+            data = get_text_message_input(
+                current_app.config["RECIPIENT_WAID"], message_type, response
+            )
+            send_message(data)
+        
+        elif message_body == "Disease detection":
+            response = "Send the picture of infected leaf ☘️"
             data = get_text_message_input(
                 current_app.config["RECIPIENT_WAID"], message_type, response
             )
@@ -225,20 +232,30 @@ def process_whatsapp_message(body):
         send_message(data)
 
     elif message_type == "image":
+        user_lang = get_user(wa_no=wa_no)[0]
+        logging.info(f"{user_lang=}")
+        if user_lang == "en":
+            response = "Analysing The Image ☘️ "
+        if user_lang == "ml":
+            response = "ചിത്രം വിശകലനം ചെയ്യുന്നു ☘️"
+        data = get_text_message_input(
+            current_app.config["RECIPIENT_WAID"], message_type, response
+        )
+        send_message(data)
         image = messenger.get_image(body)
         image_id, mime_type = image["id"], image["mime_type"]
         image_url = messenger.query_media_url(image_id)
         image_filename = messenger.download_media(image_url, mime_type)
         print(f"sent image {image_filename}")
         logging.info(f"sent image {image_filename}")
-        response = "Analysing The Image ☘️ "
         asyncio.run(prediction())
+        response = "This is the disease of this plant"
         # OpenAI Integration
         # response = generate_response(message_body, wa_id, name)
         # response = process_text_for_whatsapp(response)
 
         data = get_text_message_input(
-            current_app.config["RECIPIENT_WAID"], message_type, response
+            current_app.config["RECIPIENT_WAID"], message_type, response, 
         )
         send_message(data)
 

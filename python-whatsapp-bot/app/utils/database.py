@@ -58,12 +58,7 @@ def get_user(wa_no):
     conn.close()
 
     if user:
-        return {
-            "id": user[0],
-            "wa_no": user[1],
-            "wa_name": user[2],
-            "preferences": json.loads(user[3]) if user[3] else None,
-        }
+        return json.loads(user[3]) if user[3] else None,
     else:
         return None
 
