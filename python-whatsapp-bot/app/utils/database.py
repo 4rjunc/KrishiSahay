@@ -13,7 +13,8 @@ def initialize_database():
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
                 wa_no TEXT NOT NULL,
                 wa_name TEXT,
-                preferences TEXT)"""
+                preferences TEXT
+                image BLOB)"""
     )
 
     # Commit changes and close the connection
@@ -58,7 +59,7 @@ def get_user(wa_no):
     conn.close()
 
     if user:
-        return json.loads(user[3]) if user[3] else None,
+        return (json.loads(user[3]) if user[3] else None,)
     else:
         return None
 
@@ -77,3 +78,21 @@ def update_preferences(wa_no, preferences):
     # Commit changes and close the connection
     conn.commit()
     conn.close()
+
+
+def update_image(wa_no, image):
+    conn = sqlite3.connect("whatsapp_users.db")
+    cursor = conn.cursor()
+
+    with open('image.jpg', 'rb') as file:
+        image_data = file.read()
+
+    cursor.execute(
+        "UPDATE users SET image = ? WHERE wa_no = ?",
+        (image_data, wa_no),
+    )
+
+        # Commit changes and close the connection
+    conn.commit()
+    conn.close()
+
