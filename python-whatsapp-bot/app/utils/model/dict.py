@@ -59,8 +59,8 @@ Tomato__Tomato_mosaic_virus = {
 
 Tomato__Tomato_YellowLeaf__Curl_Virus = {
     "Name": "Tomato Yellow Leaf Curl Virus",
-    "Description": "TYLCV causes the most destructive disease of tomato, and it can be found in tropical and subtropical regions causing severe economic losses. This virus is transmitted by an insect vector from the family Aleyrodidae and order Hemiptera, the whitefly Bemisia tabaci, commonly known as the silverleaf whitefly or the sweet potato whitefly.",
-    "Symptoms": "The most characteristic symptom is the upward curling of the leaves. The leaf margins may become severely curled, giving the plant a distinctive appearance. Infected leaves often exhibit yellowing, particularly along the veins. This yellowing is more noticeable on the older leaves.",
+    "Description": "TYLCV causes the most destructive disease of tomato, and it can be found in tropical and subtropical regions causing severe economic losses. ",
+    "Symptoms": "The most characteristic symptom is the upward curling of the leaves. The leaf margins may become severely curled, giving the plant a distinctive appearance. Infected leaves often exhibit yellowing, particularly along the veins. ",
     "Solutions": {
         "Cultural": [
             "Whiteflies are the primary vectors for TYLCV. Use yellow sticky traps, neem oil, or insecticidal soaps to control whitefly populations."
