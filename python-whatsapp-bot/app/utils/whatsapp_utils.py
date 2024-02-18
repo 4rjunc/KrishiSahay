@@ -3,6 +3,7 @@ from flask import current_app, jsonify
 import json
 import requests
 from googletrans import Translator
+import asyncio
 
 # database
 from .database import add_user, get_user, update_preferences
@@ -23,7 +24,8 @@ load_dotenv()
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 messenger = WhatsApp(ACCESS_TOKEN)
 
-#Translate the data
+
+# Translate the data
 def translate_dict(data, lang="ml"):
     translator = Translator()
     if isinstance(data, str):
@@ -72,7 +74,6 @@ def get_text_message_input(recipient, type, text, lang="en"):
             }
         )
 
-
     elif type == "first":
         logging.info("First Message")
         return json.dumps(
@@ -103,29 +104,94 @@ def get_text_message_input(recipient, type, text, lang="en"):
     elif type == "prediction":
         logging.info("Prediction")
         logging.info(f"{text=}")
+        if lang == "en":
+            return json.dumps(
+                {
+                    "messaging_product": "whatsapp",
+                    "recipient_type": "individual",
+                    "to": recipient,
+                    "type": "template",
+                    "template": {
+                        "namespace": "f701d0b1_eed6_466e_bedb_128a0e30871b",
+                        "name": "result",
+                        "language": {"code": lang, "policy": "deterministic"},
+                        "components": [
+                            {
+                                "type": "body",
+                                "parameters": [
+                                    {"type": "text", "text": text["Name"]},
+                                    {"type": "text", "text": text["Description"]},
+                                    {"type": "text", "text": text["Symptoms"]},
+                                    {
+                                        "type": "text",
+                                        "text": text["Solutions"]["Organic"][0],
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": text["Solutions"]["Chemical"][0],
+                                    },
+                                ],
+                            }
+                        ],
+                    },
+                }
+            )
+        else :
+            return json.dumps(
+                {
+                    "messaging_product": "whatsapp",
+                    "recipient_type": "individual",
+                    "to": recipient,
+                    "type": "template",
+                    "template": {
+                        "namespace": "f701d0b1_eed6_466e_bedb_128a0e30871b",
+                        "name": "result2",
+                        "language": {"code": lang, "policy": "deterministic"},
+                        "components": [
+                            {
+                                "type": "body",
+                                "parameters": [
+                                    {"type": "text", "text": text["Name"]},
+                                    {"type": "text", "text": text["Description"]},
+                                    {"type": "text", "text": text["Symptoms"]},
+                                    {
+                                        "type": "text",
+                                        "text": text["Solutions"]["Organic"][0],
+                                    },
+                                    {
+                                        "type": "text",
+                                        "text": text["Solutions"]["Chemical"][0],
+                                    },
+                                ],
+                            }
+                        ],
+                    },
+                }
+            )
+
+
+    elif type == "Catalogue":
         return json.dumps(
             {
                 "messaging_product": "whatsapp",
                 "recipient_type": "individual",
-                "to": recipient,
-                "type": "template",
-                "template": {
-                    "namespace": "f701d0b1_eed6_466e_bedb_128a0e30871b",
-                    "name": "result",
-                    "language": {"code": lang, "policy": "deterministic"},
-                
-                "components": [
-                    {
-                        "type": "body",
-                        "parameters": [
-                            {"type": "text", "text": text["Name"]},
-                            {"type": "text", "text": text["Description"]},
-                            {"type": "text", "text": text["Symptoms"]},
-                            {"type": "text", "text": text["Solutions"]["Chemical"][0]},
-                            {"type": "text", "text": text["Solutions"]["Organic"][0]},
+                "to": "+918075962393",
+                "type": "interactive",
+                "interactive": {
+                    "type": "product_list",
+                    "header": {"type": "text", "text": "Explore Our Products"},
+                    "body": {"text": "Click To View Items"},
+                    "action": {
+                        "catalog_id": "1755905158245374",
+                        "sections": [
+                            {
+                                "title": "Tata Rallis",
+                                "product_items": [
+                                    {"product_retailer_id": "fflhvn18uk"}
+                                ],
+                            }
                         ],
-                    }
-                ],
+                    },
                 },
             }
         )
@@ -253,6 +319,13 @@ def process_whatsapp_message(body):
                 current_app.config["RECIPIENT_WAID"], message_type, response
             )
             send_message(data)
+        elif message_body == "Fertilizers":
+            response = "Nothing"
+            message_type = "Catalogue"
+            data = get_text_message_input(
+                current_app.config["RECIPIENT_WAID"], message_type, response
+            )
+            send_message(data)
 
     elif message_type == "text":
         logging.info("Its a text message")
@@ -270,10 +343,12 @@ def process_whatsapp_message(body):
     elif message_type == "image":
         user_lang = get_user(wa_no=wa_no)[0]
         logging.info(f"{user_lang=}")
-        if user_lang == "en":
-            response = "Analysing The Image ☘️ "
-        if user_lang == "ml":
-            response = "ചിത്രം വിശകലനം ചെയ്യുന്നു ☘️"
+
+        response = (
+            "Analysing The Image ☘️ "
+            if user_lang == "en"
+            else "ചിത്രം വിശകലനം ചെയ്യുന്നു ☘️"
+        )
         data = get_text_message_input(
             current_app.config["RECIPIENT_WAID"], message_type, response
         )
@@ -287,19 +362,29 @@ def process_whatsapp_message(body):
         response = predict_image_class(
             "/Users/arjun/Documents/KrishiSahay/python-whatsapp-bot/temp.jpeg"
         )
-        message_type = "prediction"
+
+        print(f"{response=}")
+        if response == None:
+            response = (
+                "Couldn't Process the Image"
+                if user_lang == "en"
+                else "ചിത്രം പ്രോസസ്സ് ചെയ്യാനായില്ല"
+            )
+            data = get_text_message_input(
+                current_app.config["RECIPIENT_WAID"], message_type, response
+            )
+            send_message(data)
+            return
+
         if user_lang == "ml":
             response = translate_dict(response)
             print(f"Translated to mal : {response=}")
         # OpenAI Integration
         # response = generate_response(message_body, wa_id, name)
         # response = process_text_for_whatsapp(response)
-
+        message_type = "prediction"
         data = get_text_message_input(
-            current_app.config["RECIPIENT_WAID"],
-            message_type,
-            response,
-            lang=user_lang
+            current_app.config["RECIPIENT_WAID"], message_type, response, lang=user_lang
         )
         send_message(data)
 

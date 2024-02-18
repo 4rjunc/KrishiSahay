@@ -25,9 +25,12 @@ Pepper__bell___Bacterial_spot = {
             "Crop rotation: Avoid planting peppers in the same location year after year to reduce the buildup of bacterial pathogens in the soil.",
             "Sanitation: Remove and destroy infected plant debris to prevent the spread of bacteria. Clean gardening tools regularly.",
         ],
-        "Chemical":[ 
-            "Copper-based fungicides are often effective against bacterial leaf diseases. Products like copper hydroxide or copper sulphate can be used. Follow the manufacturer's instructions for application rates and timing."],
-        "Organic": ["Ensure proper spacing between plants to promote good air circulation. This helps reduce humidity and create an environment less favorable for bacterial growth."],
+        "Chemical": [
+            "Copper-based fungicides are often effective against bacterial leaf diseases. Products like copper hydroxide or copper sulphate can be used. Follow the manufacturer's instructions for application rates and timing."
+        ],
+        "Organic": [
+            "Ensure proper spacing between plants to promote good air circulation. This helps reduce humidity and create an environment less favorable for bacterial growth."
+        ],
         "Product": [
             "Tata Rallis Blitox Fungicide: [Link](https://www.bighaat.com/products/tata-rallis-blitox-fungicide?variant=40331966349335&currency=INR&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&utm_source=Google&utm_medium=CPC&utm_campaign=20252996874&utm_adgroup=&utm_term=&creative=&device=c&devicemodel=&matchtype=&feeditemid=&targetid=&network=x&placement=&adposition=&GA_loc_interest_ms=&GA_loc_physical_ms=9149535&gad_source=1&gclid=CjwKCAiArLyuBhA7EiwA-qo80A87h344K76gNMgnL1D3OwBUH2NaUxU5PjAkm-6HO4sWN9O_DNTHEBoCNw0QAvD_BwE)",
             "Katra Bacteria-Based Bio-Fungicide: [Link](https://www.bighaat.com/products/katra-bacteria-based-bio-fungicide?variant=40600440766487&currency=INR&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&utm_source=Google&utm_medium=CPC&utm_campaign=18815455412&utm_adgroup=&utm_term=&creative=&device=c&devicemodel=&matchtype=&feeditemid=&targetid=&network=x&placement=&adposition=&GA_loc_interest_ms=&GA_loc_physical_ms=9149535&gad_source=1&gclid=CjwKCAiArLyuBhA7EiwA-qo80GBmGx3q1LH5DoxcKW8ROhk4u6AbXWhvkcATnwTny1DdRJwc6YgexBoCcHEQAvD_BwE)",
