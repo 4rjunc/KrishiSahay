@@ -2,12 +2,13 @@
 # Krishi Sahay
 KrishiSahay is a project that uses technology to help farmers in India. It focuses on identifying crop diseases quickly and providing solutions that are good for the environment. The project uses a WhatsApp bot because many farmers in India have smartphones and can easily use WhatsApp. The goal is to empower farmers and promote sustainable agriculture.
 
-
+[VideoDemo](https://youtube.com/shorts/Z3PhrI99rhQ?feature=share) 
 
 ## Tech Stack
 
 - flask
 - sqlite3
+- tensorflow
 
 ## How to run
 
