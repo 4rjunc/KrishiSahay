@@ -110,66 +110,27 @@ def get_text_message_input(recipient, type, text, lang="en"):
                     "messaging_product": "whatsapp",
                     "recipient_type": "individual",
                     "to": recipient,
-                    "type": "template",
-                    "template": {
-                        "namespace": "f701d0b1_eed6_466e_bedb_128a0e30871b",
-                        "name": "result",
-                        "language": {"code": lang, "policy": "deterministic"},
-                        "components": [
-                            {
-                                "type": "body",
-                                "parameters": [
-                                    {"type": "text", "text": text["Name"]},
-                                    {"type": "text", "text": text["Description"]},
-                                    {"type": "text", "text": text["Symptoms"]},
-                                    {
-                                        "type": "text",
-                                        "text": text["Solutions"]["Organic"][0],
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": text["Solutions"]["Chemical"][0],
-                                    },
-                                ],
-                            }
-                        ],
+                    "type": "text",
+                    "text": {
+                        "preview_url": False,
+                        "body": f" 🦠 *Disease* : {text['Name']}\n📃 *Description* : {text['Description']}\n👀 *Symptoms* : {text['Symptoms']}\n🧪 *Chemical Solution* : {text['Solutions']['Chemical'][0]}\n☘️ *Organic Solution* : {text['Solutions']['Organic'][0]}",
                     },
                 }
             )
-        else :
+
+        else:
             return json.dumps(
                 {
                     "messaging_product": "whatsapp",
                     "recipient_type": "individual",
                     "to": recipient,
-                    "type": "template",
-                    "template": {
-                        "namespace": "f701d0b1_eed6_466e_bedb_128a0e30871b",
-                        "name": "result2",
-                        "language": {"code": lang, "policy": "deterministic"},
-                        "components": [
-                            {
-                                "type": "body",
-                                "parameters": [
-                                    {"type": "text", "text": text["Name"]},
-                                    {"type": "text", "text": text["Description"]},
-                                    {"type": "text", "text": text["Symptoms"]},
-                                    {
-                                        "type": "text",
-                                        "text": text["Solutions"]["Organic"][0],
-                                    },
-                                    {
-                                        "type": "text",
-                                        "text": text["Solutions"]["Chemical"][0],
-                                    },
-                                ],
-                            }
-                        ],
+                    "type": "text",
+                    "text": {
+                        "preview_url": False,
+                        "body": f" 🦠 *രോഗം* : {text['Name']}\n📃 *വിവരണം* : {text['Description']}\n👀 *രോഗലക്ഷണങ്ങൾ* : {text['Symptoms']}\n🧪 *കെമിക്കൽ പരിഹാരം* : {text['Solutions']['Chemical'][0]}\n☘️ *ജൈവ പരിഹാരം* : {text['Solutions']['Organic'][0]}",
                     },
                 }
             )
-
-
     elif type == "Catalogue":
         return json.dumps(
             {
@@ -401,3 +362,5 @@ def is_valid_whatsapp_message(body):
         and body["entry"][0]["changes"][0]["value"].get("messages")
         and body["entry"][0]["changes"][0]["value"]["messages"][0]
     )
+
+
