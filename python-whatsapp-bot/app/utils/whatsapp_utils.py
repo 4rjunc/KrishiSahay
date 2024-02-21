@@ -8,6 +8,8 @@ import asyncio
 # database
 from .database import add_user, get_user, update_preferences
 
+# medicine 
+from .product.finder import search_medicine_for_disease
 # model
 from .model.model import predict_image_class
 
@@ -104,6 +106,8 @@ def get_text_message_input(recipient, type, text, lang="en"):
     elif type == "prediction":
         logging.info("Prediction")
         logging.info(f"{text=}")
+
+
         if lang == "en":
             return json.dumps(
                 {
