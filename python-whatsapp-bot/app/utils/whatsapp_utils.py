@@ -8,8 +8,9 @@ import asyncio
 # database
 from .database import add_user, get_user, update_preferences
 
-# medicine 
+# medicine
 from .product.finder import search_medicine_for_disease
+
 # model
 from .model.model import predict_image_class
 
@@ -25,6 +26,17 @@ import os
 load_dotenv()
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 messenger = WhatsApp(ACCESS_TOKEN)
+
+# to store user info
+user_dict = {}
+
+
+class User:
+    def __init__(self, wa_name, wa_no):
+        self.name = wa_name
+        self.reg_no = wa_no
+        self.dob = None
+        self.aadhar_no = None
 
 
 # Translate the data
@@ -106,7 +118,6 @@ def get_text_message_input(recipient, type, text, lang="en"):
     elif type == "prediction":
         logging.info("Prediction")
         logging.info(f"{text=}")
-
 
         if lang == "en":
             return json.dumps(
@@ -219,6 +230,7 @@ def process_whatsapp_message(body):
     print(f"{wa_no=}, {wa_name=}")
 
     # Added user to DB
+    user = User(wa_no, wa_name)
     is_new = add_user(wa_no=wa_no, wa_name=wa_name)
     logging.info(f"{is_new=}")
     if is_new:
@@ -310,9 +322,7 @@ def process_whatsapp_message(body):
         logging.info(f"{user_lang=}")
 
         response = (
-            "Analysing The Image ☘️ "
-            if user_lang == "en"
-            else "ചിത്രം വിശകലനം ചെയ്യുന്നു ☘️"
+            "Analysing The Image ☘️ " if user_lang == "en" else "ചിത്രം വിശകലനം ചെയ്യുന്നു ☘️"
         )
         data = get_text_message_input(
             current_app.config["RECIPIENT_WAID"], message_type, response
@@ -366,5 +376,3 @@ def is_valid_whatsapp_message(body):
         and body["entry"][0]["changes"][0]["value"].get("messages")
         and body["entry"][0]["changes"][0]["value"]["messages"][0]
     )
-
-
