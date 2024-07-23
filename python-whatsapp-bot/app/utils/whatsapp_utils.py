@@ -35,8 +35,7 @@ class User:
     def __init__(self, wa_name, wa_no):
         self.name = wa_name
         self.reg_no = wa_no
-        self.dob = None
-        self.aadhar_no = None
+        self.lang = None
 
 
 # Translate the data
@@ -191,6 +190,7 @@ def send_message(data):
         response = requests.post(
             url, data=data, headers=headers, timeout=10
         )  # 10 seconds timeout as an example
+        print("RESPONSE:", response.content)
         response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
     except requests.Timeout:
         logging.error("Timeout occurred while sending message")
@@ -229,6 +229,7 @@ def process_whatsapp_message(body):
     wa_name = messenger.get_name(body)
     print(f"{wa_no=}, {wa_name=}")
 
+    print("BODY:", body)
     # Added user to DB
     user = User(wa_no, wa_name)
     is_new = add_user(wa_no=wa_no, wa_name=wa_name)
@@ -242,8 +243,6 @@ def process_whatsapp_message(body):
 
         send_message(data)
         return
-
-    print("BODY:", body)
 
     # TODO: Check the type of message
     message_type = messenger.get_message_type(body)
