@@ -6,7 +6,7 @@ import json
 
 # Load the model architecture from JSON file
 json_file = open(
-    "/Users/arjun/Documents/KrishiSahay/python-whatsapp-bot/app/utils/model/model_architecture.json",
+    "/Users/arjun/Documents/KrishiSahay/python-whatsapp-bot/app/utils/model/new1model_architecture.json",
     "r",
 )
 loaded_model_json = json_file.read()
@@ -20,13 +20,13 @@ model = model_from_json(loaded_model_json)
 
 # Load the trained weights
 model.load_weights(
-    "/Users/arjun/Documents/KrishiSahay/python-whatsapp-bot/app/utils/model/model_weights.h5"
+    "/Users/arjun/Documents/KrishiSahay/python-whatsapp-bot/app/utils/model/new1model_weights.h5"
 )
 
 
 # Function to predict the class of an image
 def predict_image_class(image_path):
-    img = image.load_img(image_path, target_size=(224, 224))
+    img = image.load_img(image_path, target_size=(160, 160))
     img_array = image.img_to_array(img)
     img_array = np.expand_dims(img_array, axis=0)
     img_array /= 255.0  # Normalize the image (if applicable)
@@ -37,12 +37,12 @@ def predict_image_class(image_path):
     # Modify this logic based on how your classes are determined
     class_label = {
         "Downey Mildew": 0,
-        "Healthy cucumberleaf": 1,
-        "Pepper__bell___Bacterial_spot": 2,
-        "Pepper__bell___healthy": 3,
-        "Tomato__Tomato_YellowLeaf__Curl_Virus": 4,
-        "Tomato__Tomato_mosaic_virus": 5,
-        "Tomato_healthy": 6,
+        #       "Healthy cucumberleaf": 1,
+        "Pepper__bell___Bacterial_spot": 1,
+        "Pepper__bell___healthy": 2,
+        "Tomato__Tomato_YellowLeaf__Curl_Virus": 3,
+        # "Tomato__Tomato_mosaic_virus": 5,
+        "Tomato_healthy": 4,
     }
     disease_type = list(class_label.keys())[list(class_label.values()).index(class_idx)]
 

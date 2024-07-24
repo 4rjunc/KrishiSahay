@@ -1,5 +1,4 @@
-
-# Krishi Sahay - HACK4TKM
+# Krishi Sahay
 
 KrishiSahay is a project that uses technology to help farmers in India. It focuses on identifying crop diseases quickly and providing solutions that are good for the environment. The project uses a WhatsApp bot because many farmers in India have smartphones and can easily use WhatsApp. The goal is to empower farmers and promote sustainable agriculture.
 ![alt text](<Screenshot 2024-06-02 at 12.09.09.png>)
@@ -10,7 +9,6 @@ KrishiSahay is a project that uses technology to help farmers in India. It focus
 [2.Amal K](amalkanhangad)  
 [3.Vishnu Prakash J](vishnuprakash-777)  
 [4.Hariprasad G Yadhav](HARI-G-YADHAV)
-
 
 ## How it Works ?
 
@@ -120,4 +118,3 @@ In the Meta App Dashboard, go to WhatsApp > Configuration, then click the Edit b
 ## Other Links
 
 [Presentation](https://drive.google.com/file/d/1jdGcqnBBMfPv0ovjnV8kqJdJP_kDLMHr/view?usp=sharing)
-
